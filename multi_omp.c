@@ -1,19 +1,18 @@
 /* Умножение матриц с использованием OpenMP */
 
+#include "CLI11.hpp"
+#include <omp.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <iostream>
 #include <sys/time.h>
-#include <omp.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/times.h>
 #include <fcntl.h>
 #include <string.h>
-#include "CLI11.hpp"
-
 
 /* Выделение памяти под матрицы размером size*size */
 double *alloc_matrix(int size) {

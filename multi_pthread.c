@@ -13,13 +13,13 @@
 #include <string.h>
 #include "CLI11.hpp"
 
-int *alloc_matrix(int size){
-    int *matrix = (int*)malloc(size * size * sizeof(int));
-    printf("matrix %dx%d allocated\n", size, size);
+double *alloc_matrix(int size){
+    double *matrix = (double*)malloc(size * size * sizeof(double));
+    //printf("matrix %dx%d allocated\n", size, size);
     return matrix;
 }
 
-void del_matrix(int *matrix){
+void del_matrix(double *matrix){
     free(matrix);
 }
 
@@ -33,9 +33,9 @@ double dtime(){
 }
 
 struct matrix_args{
-    int *m1;
-    int *m2;
-    int *ans;
+    double *m1;
+    double *m2;
+    double *ans;
     int size;
     int start;
     int end;
@@ -45,9 +45,9 @@ void *multiply_matrix(void *pargs){
     struct matrix_args *args = (struct matrix_args *) pargs;
     int i, j, k, l, m, tmp = 0;
     double t0 = dtime();
-    int *m1 = args->m1;
-    int *m2 = args->m2;
-    int *ans = args->ans;
+    double *m1 = args->m1;
+    double *m2 = args->m2;
+    double *ans = args->ans;
     int size = args->size;
     int start = args->start;
     int end = args->end;
@@ -56,14 +56,14 @@ void *multiply_matrix(void *pargs){
         for(j = 0; j < size; j++){
             l = 0;
             for(k = 0; k < size; k++){
-                tmp += m1[m + k] * m2[j + l];
+                tmp += m1[i * size + k] * m2[j + l];
                 l += size;
             }
             ans[m + j] = tmp;
             tmp = 0;
         }
     }
-    printf("thread works %fs\n", dtime() - t0);
+    //printf("thread works %fs\n", dtime() - t0);
     pthread_exit(NULL);
 }
 
@@ -82,10 +82,10 @@ int main(int argc, char** argv) {
     /* Создаем массив потоков */
     pthread_t threads[THR_NUM];
     pthread_attr_t attr;
-    printf("allocating\n");
-    int *m1 = alloc_matrix(size);
-    int *m2 = alloc_matrix(size);
-    int *ans = alloc_matrix(size);
+    //printf("allocating\n");
+    double *m1 = alloc_matrix(size);
+    double *m2 = alloc_matrix(size);
+    double *ans = alloc_matrix(size);
     srand(time(NULL));
 
     for(int i=0; i<size; i++) {
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    printf("multiplying\n");
+    //printf("multiplying\n");
     double t0 = dtime();
     /* Инициализация атрибутов потока */
     pthread_attr_init(&attr);
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
     pthread_attr_destroy(&attr);
     for(k = 0; k < THR_NUM; k++)
         pthread_join(threads[k], NULL);
-    printf("time for multiplying: %f\n", dtime()-t0);
+    printf("time for multiplying (n = %d, t = %d): %f\n", size, THR_NUM, dtime()-t0);
     del_matrix(m1);
     del_matrix(m2);
     del_matrix(ans);
